@@ -28,7 +28,7 @@ import traceback
 import avro
 import avro.io
 
-from confluent_kafka.avro import ClientError
+from confluent_kafka.avro import ClientError, SubjectNameStrategy
 from confluent_kafka.avro.serializer import (SerializerError,
                                              KeySerializerError,
                                              ValueSerializerError)
@@ -69,12 +69,13 @@ class MessageSerializer(object):
     All decode_* methods expect a buffer received from kafka.
     """
 
-    def __init__(self, registry_client, reader_key_schema=None, reader_value_schema=None):
+    def __init__(self, registry_client, reader_key_schema=None, reader_value_schema=None, subject_name_strategy=SubjectNameStrategy.RecordNameStrategy):
         self.registry_client = registry_client
         self.id_to_decoder_func = {}
         self.id_to_writers = {}
         self.reader_key_schema = reader_key_schema
         self.reader_value_schema = reader_value_schema
+        self.subject_name_strategy=subject_name_strategy
 
     # Encoder support
     def _get_encoder_func(self, writer_schema):
@@ -84,6 +85,19 @@ class MessageSerializer(object):
             return lambda record, fp: schemaless_writer(fp, parsed_schema, record)
         writer = avro.io.DatumWriter(writer_schema)
         return lambda record, fp: writer.write(record, avro.io.BinaryEncoder(fp))
+
+    def _get_subject(self, topic: str, is_key: bool, schema):
+
+        if self.subject_name_strategy is SubjectNameStrategy.RecordNameStrategy:
+            subject_suffix = ('-key' if is_key else '-value')
+            # get the latest schema for the subject
+            subject = topic + subject_suffix
+            return subject
+
+        if self.subject_name_strategy is SubjectNameStrategy.TopicNameStrategy:
+            return schema.fullname
+
+        raise NotImplementedError(f"The subject name strategy `{self.subject_name_strategy}` is  not yet implemented !")
 
     def encode_record_with_schema(self, topic, schema, record, is_key=False):
         """
@@ -100,9 +114,12 @@ class MessageSerializer(object):
         """
         serialize_err = KeySerializerError if is_key else ValueSerializerError
 
-        subject_suffix = ('-key' if is_key else '-value')
-        # get the latest schema for the subject
-        subject = topic + subject_suffix
+        subject = self._get_subject(
+            topic=topic,
+            is_key=is_key,
+            schema=schema
+        )
+
         if self.registry_client.auto_register_schemas:
             # register it
             schema_id = self.registry_client.register(subject, schema)

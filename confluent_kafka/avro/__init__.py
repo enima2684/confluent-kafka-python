@@ -28,6 +28,7 @@ from confluent_kafka.avro.serializer import (SerializerError,  # noqa
                                              KeySerializerError,
                                              ValueSerializerError)
 from confluent_kafka.avro.serializer.message_serializer import MessageSerializer
+from confluent_kafka.avro.subject_name_strategy import SubjectNameStrategy
 
 
 class AvroProducer(Producer):
@@ -43,8 +44,13 @@ class AvroProducer(Producer):
         :param str default_value_schema: Optional default avro schema for value
     """
 
-    def __init__(self, config, default_key_schema=None,
-                 default_value_schema=None, schema_registry=None):
+    def __init__(self,
+                 config,
+                 default_key_schema=None,
+                 default_value_schema=None,
+                 schema_registry=None,
+                 subject_name_strategy=SubjectNameStrategy.RecordNameStrategy
+                 ):
 
         sr_conf = {key.replace("schema.registry.", ""): value
                    for key, value in config.items() if key.startswith("schema.registry")}
@@ -65,7 +71,7 @@ class AvroProducer(Producer):
             raise ValueError("Cannot pass schema_registry along with schema.registry.url config")
 
         super(AvroProducer, self).__init__(ap_conf)
-        self._serializer = MessageSerializer(schema_registry)
+        self._serializer = MessageSerializer(schema_registry, subject_name_strategy=subject_name_strategy)
         self._key_schema = default_key_schema
         self._value_schema = default_value_schema
 
