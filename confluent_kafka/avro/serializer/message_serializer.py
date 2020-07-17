@@ -24,11 +24,12 @@ import logging
 import struct
 import sys
 import traceback
+from enum import Enum, auto
 
 import avro
 import avro.io
 
-from confluent_kafka.avro import ClientError, SubjectNameStrategy
+from confluent_kafka.avro import ClientError
 from confluent_kafka.avro.serializer import (SerializerError,
                                              KeySerializerError,
                                              ValueSerializerError)
@@ -58,6 +59,12 @@ class ContextStringIO(io.BytesIO):
     def __exit__(self, *args):
         self.close()
         return False
+
+
+class SubjectNameStrategy(Enum):
+    TopicNameStrategy = auto()
+    RecordNameStrategy = auto()
+    TopicRecordNameStrategy = auto()
 
 
 class MessageSerializer(object):

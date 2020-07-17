@@ -27,8 +27,7 @@ from confluent_kafka.avro.cached_schema_registry_client import CachedSchemaRegis
 from confluent_kafka.avro.serializer import (SerializerError,  # noqa
                                              KeySerializerError,
                                              ValueSerializerError)
-from confluent_kafka.avro.serializer.message_serializer import MessageSerializer
-from confluent_kafka.avro.subject_name_strategy import SubjectNameStrategy
+from confluent_kafka.avro.serializer.message_serializer import MessageSerializer, SubjectNameStrategy
 
 
 class AvroProducer(Producer):
