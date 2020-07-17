@@ -60,14 +60,14 @@ def get_install_requirements(path):
     ]
 
 
-setup(name='confluent-kafka',
+setup(name='confluent-kafka-amine',
       # Make sure to bump CFL_VERSION* in confluent_kafka/src/confluent_kafka.h
       # and version and release in docs/conf.py.
       version='1.4.2',
-      description='Confluent\'s Python client for Apache Kafka',
-      author='Confluent Inc',
-      author_email='support@confluent.io',
-      url='https://github.com/confluentinc/confluent-kafka-python',
+      description='Forked Confluent\'s Python client for Apache Kafka. Contains implementation of subject name strategy',
+      author='Amine Bouamama',
+      author_email='amine.bouamama@gmail.com',
+      url='https://github.com/enima2684/confluent-kafka-python.git',
       ext_modules=[module],
       packages=find_packages(exclude=("tests", "tests.*")),
       data_files=[('', [os.path.join(work_dir, 'LICENSE.txt')])],
