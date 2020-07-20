@@ -63,7 +63,7 @@ def get_install_requirements(path):
 setup(name='confluent-kafka-amine',
       # Make sure to bump CFL_VERSION* in confluent_kafka/src/confluent_kafka.h
       # and version and release in docs/conf.py.
-      version='1.4.2',
+      version='1.4.2.1',
       description='Forked Confluent\'s Python client for Apache Kafka. Contains implementation of subject name strategy',
       author='Amine Bouamama',
       author_email='amine.bouamama@gmail.com',
